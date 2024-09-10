@@ -1,0 +1,22 @@
+void Sentarse(char* nombre) {
+printf("El comensal %s se sentó a la mesa\n", nombre);
+}
+
+void Servircomida(char* nombre){
+printf("El comensal %s fue servido\n", nombre);
+}
+
+void Enojarse(){
+printf("Manucho se enojo\n");
+}
+
+void Levantarse(){
+printf("Manucho se levanta de la mesa");
+}
+
+void Lanzar_pregunta_mundialista(){
+printf("Manucho hace una pregunta sobre el mundial");
+}
+
+void Lanzar_respuesta_mundialista(char* nombre){
+printf("El comensal %s responde la pregunta", nombre);
