@@ -5,7 +5,7 @@
 
 
 int N = 3;
-int M = 1;
+int M = 2;
 
 sem_t sem_sentarse;
 sem_t sem_empezar_servir;
