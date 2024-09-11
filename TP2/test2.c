@@ -3,17 +3,37 @@
 # include <semaphore.h>
 #include <unistd.h>
 
+
+int N = 3;
+int M = 1;
+
 sem_t sem_sentarse;
 sem_empezar_servir;
 sem_t manuchoLanzoPregunta;
 sem_t manuchoSeLevanto;
 sem_t comenzalLanzaRespuesta;
+sem_t mozosDisponibles;
+sem_t unComensalLibre;
 
 
 pthread_mutex_t mutex1;
 
 int invitados_sentados = 0;
 int invitados_comieron = 0;
+
+
+void servirComida(int id)
+{ //id de invitado
+        sem_wait(&mozosDisponibles);    // Espera hasta que un mozo este disponible (disminuye el semaforo)
+        printf("Mozo esta sirviendo al invitado %d.\n", id);
+        sleep(1);                       // Simula el tiempo que el mozo tarda en servir al invitado
+        printf("Invitado %d esta comiendo.\n", id);
+        sleep(3);                       // Simulamos que el invitado esta comiendo
+        printf("Invitado %d ha terminado de comer.\n", id);
+        sem_post(&unComensalLibre);     // Una vez el invitado termino de comer, lo libero para que haga la pregunta.
+        sem_post(&mozosDisponibles);    // Libero al mozo.
+}
+
 
 // ---------------------MANUCHO---------------------------
 
@@ -26,11 +46,9 @@ void* ManuchoSeSienta()
 }
 
 
-void* ManuchoCome()
+void* ManuchoCome(id)
 {
-    //Aca espera a que le sirvan
-    printf("Manucho esta comiendo");
-    Sleep(5);
+    servirComida(id);
     return NULL;
 }
 
@@ -52,11 +70,11 @@ void* enojarse(){
 
 void* Manucho(void* arg)
 {
-    //int id = *(int*)arg;
+    int id = *(int*)arg;
     
     ManuchoSeSienta();
     
-    ManuchoCome();
+    ManuchoCome(id);
     
     Lanzar_pregunta_mundialista();
     
@@ -65,7 +83,6 @@ void* Manucho(void* arg)
     return NULL;
 
 }
-
 
 
 // ----------------------INVITADO-------------------------
@@ -78,7 +95,7 @@ void* invitadoSeSienta(int id)
     invitados_sentados++;
     pthread_mutex_unlock(&mutex1);
 
-    if(invitados_sentados == 3)
+    if(invitados_sentados == N)
     {
     sem_post(&sem_sentarse);
     }
@@ -89,11 +106,7 @@ void* invitadoSeSienta(int id)
 
 void* invitadoCome(int id)
 {
-    // Aca banca a que le sirvan
-    
-    printf("Invitado %d esta comiendo", id);
-    
-    Sleep(5);
+    servirComida(id);
     
     return NULL;   
 }
@@ -130,7 +143,7 @@ void* invitado(void* arg){
     
     invitadoSeSienta(id);
     
-    //invitadoCome(id);
+    invitadoCome(id);
     
     invitadoResponde(id);
     
@@ -143,21 +156,21 @@ void* invitado(void* arg){
 }
 int main()
 {
-    int invitados_id[3]; 
+    int ids[N+1]; 
     pthread_t manucho;
-    pthread_t invitados [3];
+    pthread_t invitados [N];
     
-    pthread_create(&manucho, NULL, (void*)Manucho, NULL);
+    pthread_create(&manucho, NULL, (void*)Manucho, &ids[N+1]);
     
-    for(int i = 0; i<3; i++)
+    for(int i = 0; i<N; i++)
     {
-    invitados_id[i] = i;
-    pthread_create(&invitados[i], NULL, (void*)invitado, &invitados_id[i]);
+    ids[i] = i;
+    pthread_create(&invitados[i], NULL, (void*)invitado, &ids[i]);
     }
     
     pthread_join(manucho, NULL);
     
-    for(int i = 0; i<3; i++)
+    for(int i = 0; i<N; i++)
     {
     pthread_join(invitados[i], NULL);
     }
