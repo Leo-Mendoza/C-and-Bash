@@ -8,7 +8,7 @@ int N = 3;
 int M = 1;
 
 sem_t sem_sentarse;
-sem_empezar_servir;
+sem_t sem_empezar_servir;
 sem_t manuchoLanzoPregunta;
 sem_t manuchoSeLevanto;
 sem_t comenzalLanzaRespuesta;
@@ -25,7 +25,7 @@ int invitados_comieron = 0;
 void servirComida(int id)
 { //id de invitado
         sem_wait(&mozosDisponibles);    // Espera hasta que un mozo este disponible (disminuye el semaforo)
-        printf("Mozo esta sirviendo al invitado %d.\n", id);
+        printf("\nMozo esta sirviendo al invitado %d.\n", id);
         sleep(1);                       // Simula el tiempo que el mozo tarda en servir al invitado
         printf("Invitado %d esta comiendo.\n", id);
         sleep(3);                       // Simulamos que el invitado esta comiendo
@@ -46,7 +46,7 @@ void* ManuchoSeSienta()
 }
 
 
-void* ManuchoCome(id)
+void* ManuchoCome(int id)
 {
     servirComida(id);
     return NULL;
@@ -55,7 +55,7 @@ void* ManuchoCome(id)
 void* Lanzar_pregunta_mundialista()
 {
     printf("\nManucho: Quien consideran que es el proximo campeon del mundo???");
-    sem_post(manuchoLanzoPregunta);
+    sem_post(&manuchoLanzoPregunta);
     return NULL;
 }
 
@@ -152,13 +152,21 @@ void* invitado(void* arg){
     return NULL;
 }
 
-    
-}
+
 int main()
 {
     int ids[N+1]; 
     pthread_t manucho;
     pthread_t invitados [N];
+    
+    
+    //Inicializo semaforos y les defino su primer estado
+        sem_init(&sem_empezar_servir, 0, 0);//Este semaforo se va a usar para que los mozos esperen a que marucho se siente para servir
+        sem_init(&manuchoLanzoPregunta,0,0);
+        sem_init(&comenzalLanzaRespuesta,0,0);
+        sem_init(&mozosDisponibles, 0, M);
+        sem_init(&unComensalLibre,0,0);
+    
     
     pthread_create(&manucho, NULL, (void*)Manucho, &ids[N+1]);
     
