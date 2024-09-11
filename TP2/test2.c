@@ -110,7 +110,8 @@ void* invitadoResponde(int id){
         printf("\nComenzal %d: Francia tiene potencial", id);
         sem_post(&comenzalLanzaRespuesta);
     }else{
-         return NULL;
+        pthread_mutex_unlock(&mutex1);
+        return NULL;
     }
     
 }
