@@ -118,15 +118,16 @@ void* invitadoResponde(int id){
     
     pthread_mutex_lock(&mutex1);;
     
-     if(invitados_comieron == 0)
+     if(invitados_comieron < 1)
     {
         printf("\nComenzal %d: Francia tiene potencial", id);
         sem_post(&comenzalLanzaRespuesta);
-    }else{
-        pthread_mutex_unlock(&mutex1);
-        return NULL;
     }
     
+    invitados_comieron++;
+        
+    pthread_mutex_unlock(&mutex1);
+    return NULL;
 }
 
 void* invitadoSeLevanta(int id)
