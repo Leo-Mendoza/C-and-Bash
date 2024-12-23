@@ -1,4 +1,3 @@
-//#include <mpi.c>
 #include <stdio.h>
 #include <stdlib.h>
 
